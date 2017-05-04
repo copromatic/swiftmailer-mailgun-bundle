@@ -1,5 +1,5 @@
 {
-    "name" : "cspoo/swiftmailer-mailgun-bundle",
+    "name" : "touiliy/swiftmailer-mailgun-bundle",
     "type" : "symfony-bundle",
     "description" : "Swiftmailer Mailgun bundle",
     "keywords" : ["E-Mail", "Swiftmailer", "mailgun"],
@@ -14,7 +14,7 @@
             "role" : "Developer"
         }
     ],
-    "minimum-stability" : "stable",
+    "minimum-stability" : "dev",
     "require": {
         "php": "^5.5 || ^7.0",
         "swiftmailer/swiftmailer": "^5.0",
