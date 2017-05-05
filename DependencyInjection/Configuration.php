@@ -29,10 +29,44 @@ class Configuration implements ConfigurationInterface
     private function addAPIConfigSection(ArrayNodeDefinition $rootNode)
     {
         $rootNode
+            ->beforeNormalization()
+            ->ifTrue(function ($v) { return is_array($v) && !array_key_exists('transports', $v) && !array_key_exists('mailer', $v); })
+            ->then(function ($v) {
+                $transport = array();
+                foreach ($v as $key => $value) {
+                    if ('default_transport' == $key) {
+                        continue;
+                    }
+                    $transport[$key] = $v[$key];
+                    unset($v[$key]);
+                }
+                $v['default_transport'] = isset($v['default_transport']) ? (string) $v['default_transport'] : 'default';
+                $v['transports'] = array($v['default_transport'] => $transport);
+
+                return $v;
+            })
+            ->end()
+            ->children()
+                ->scalarNode('default_transport')->end()
+                ->scalarNode('http_client')->end()
+                ->append($this->getTransportsNode())
+            ->end()
+        ;
+    }
+
+    private function getTransportsNode() {
+        $treeBuilder = new TreeBuilder();
+        $node = $treeBuilder->root('transports');
+
+        $node
+            ->requiresAtLeastOneElement()
+            ->useAttributeAsKey('name')
+            ->prototype('array')
             ->children()
                 ->scalarNode('key')->isRequired()->end()
                 ->scalarNode('domain')->isRequired()->end()
-                ->scalarNode('http_client')->end()
-            ->end();
+            ->end()
+        ;
+        return $node;
     }
 }
