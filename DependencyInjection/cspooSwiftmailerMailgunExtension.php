@@ -31,34 +31,46 @@ class cspooSwiftmailerMailgunExtension extends Extension
         $definitionDecorator = new DefinitionDecorator('swiftmailer.transport.eventdispatcher.abstract');
         $container->setDefinition('mailgun.swift_transport.eventdispatcher', $definitionDecorator);
 
-        foreach ($config['transports'] as $key => $transport) {
-            // Mailgun php lib
-            $container->setDefinition('mailgun.library.'.$key,
-                new Definition('%mailgun.class%', [
-                    $transport['key'],
-                    null
-                ])
-            );
-            // Transport Swiftmailer
-            $container->setDefinition('mailgun.swift_transport.transport.'.$key,
-                new Definition('%mailgun.swift_transport.transport.class%', [
-                    new Reference('mailgun.swift_transport.eventdispatcher'),
-                    new Reference('mailgun.library.'.$key),
-                    $transport['domain']
-                ])
-            );
-            if (!empty($config['http_client'])) {
-                $container->getDefinition('mailgun.library.'.$key)->replaceArgument(1,
-                    new Reference($config['http_client'])
+        if (isset($config['transports'])) {
+            foreach ($config['transports'] as $key => $transport) {
+                // Mailgun php lib
+                $container->setDefinition('mailgun.library.'.$key,
+                    new Definition('%mailgun.class%', [
+                        $transport['key'],
+                        null
+                    ])
                 );
-            }
+                // Transport Swiftmailer
+                $container->setDefinition('mailgun.swift_transport.transport.'.$key,
+                    new Definition('%mailgun.swift_transport.transport.class%', [
+                        new Reference('mailgun.swift_transport.eventdispatcher'),
+                        new Reference('mailgun.library.'.$key),
+                        $transport['domain']
+                    ])
+                );
+                if (!empty($config['http_client'])) {
+                    $container->getDefinition('mailgun.library.'.$key)->replaceArgument(1,
+                        new Reference($config['http_client'])
+                    );
+                }
 
-            // Set up aliases
-            $container->setAlias('mailgun.'.$key, 'mailgun.swift_transport.transport.'.$key);
-            if ($key == $config['default_transport']) {
-                $container->setAlias('mailgun', 'mailgun.swift_transport.transport.'.$key);
-                $container->setAlias('swiftmailer.mailer.transport.mailgun', 'mailgun.swift_transport.transport.'.$key);
+                // Set up aliases
+                $container->setAlias('mailgun.'.$key, 'mailgun.swift_transport.transport.'.$key);
+                if ($key == $config['default_transport']) {
+                    $container->setAlias('mailgun', 'mailgun.swift_transport.transport.'.$key);
+                    $container->setAlias('swiftmailer.mailer.transport.mailgun', 'mailgun.swift_transport.transport.'.$key);
+                }
             }
+        } else if (isset($config['key']) && isset($config['domain'])) {
+
+            $container->getDefinition('mailgun.swift_transport.transport')
+                ->replaceArgument(0, new Reference('mailgun.swift_transport.eventdispatcher'));
+            if (!empty($config['http_client'])) {
+                $container->getDefinition('mailgun.library')->replaceArgument(1, new Reference($config['http_client']));
+            }
+            //set some alias
+            $container->setAlias('mailgun', 'mailgun.swift_transport.transport');
+            $container->setAlias('swiftmailer.mailer.transport.mailgun', 'mailgun.swift_transport.transport');
         }
     }
 }

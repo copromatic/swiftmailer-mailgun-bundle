@@ -47,6 +47,8 @@ class Configuration implements ConfigurationInterface
             })
             ->end()
             ->children()
+                ->scalarNode('key')->end()
+                ->scalarNode('domain')->end()
                 ->scalarNode('default_transport')->end()
                 ->scalarNode('http_client')->end()
                 ->append($this->getTransportsNode())
