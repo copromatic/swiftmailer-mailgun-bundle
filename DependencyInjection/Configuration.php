@@ -21,6 +21,41 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('cspoo_swiftmailer_mailgun');
 
+        $rootNode
+            ->beforeNormalization()
+            ->ifTrue(function ($v) {
+                if (isset($v['key']) && isset($v['transports']))
+                    return true;
+                return false;
+            })
+            ->thenInvalid('You must specify key/domain at root node or in transports node')
+            ->end()
+            ->children()
+                ->scalarNode('key')->end()
+                ->scalarNode('domain')->end()
+                ->scalarNode('default_transport')
+                    ->beforeNormalization()
+                    ->ifTrue(function ($v) { return is_array($v) && !array_key_exists('transports', $v) && !array_key_exists('mailer', $v); })
+                    ->then(function ($v) {
+                        $transport = array();
+                        foreach ($v as $key => $value) {
+                            if ('default_transport' == $key) {
+                                continue;
+                            }
+                            $transport[$key] = $v[$key];
+                            unset($v[$key]);
+                        }
+                        $v['default_transport'] = isset($v['default_transport']) ? (string) $v['default_transport'] : 'default';
+                        $v['transports'] = array($v['default_transport'] => $transport);
+
+                        return $v;
+                    })
+                    ->end()
+                ->end()
+                ->scalarNode('http_client')->end()
+            ->end()
+        ;
+
         $this->addAPIConfigSection($rootNode);
 
         return $treeBuilder;
@@ -29,29 +64,17 @@ class Configuration implements ConfigurationInterface
     private function addAPIConfigSection(ArrayNodeDefinition $rootNode)
     {
         $rootNode
-            ->beforeNormalization()
-            ->ifTrue(function ($v) { return is_array($v) && !array_key_exists('transports', $v) && !array_key_exists('mailer', $v); })
-            ->then(function ($v) {
-                $transport = array();
-                foreach ($v as $key => $value) {
-                    if ('default_transport' == $key) {
-                        continue;
-                    }
-                    $transport[$key] = $v[$key];
-                    unset($v[$key]);
-                }
-                $v['default_transport'] = isset($v['default_transport']) ? (string) $v['default_transport'] : 'default';
-                $v['transports'] = array($v['default_transport'] => $transport);
-
-                return $v;
-            })
-            ->end()
             ->children()
-                ->scalarNode('key')->end()
-                ->scalarNode('domain')->end()
-                ->scalarNode('default_transport')->end()
-                ->scalarNode('http_client')->end()
-                ->append($this->getTransportsNode())
+                ->arrayNode('transports')
+                    ->useAttributeAsKey('name')
+                    ->canBeUnset()
+                    ->prototype('array')
+                        ->children()
+                            ->scalarNode('key')->isRequired()->end()
+                            ->scalarNode('domain')->isRequired()->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end()
         ;
     }
