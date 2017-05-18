@@ -15,15 +15,15 @@
         </service>
 
         <service id="mailgun.library" class="%mailgun.class%" public="true">
-            <argument>%mailgun.key%</argument>
-            <argument>null</argument>
+            <argument></argument>
+            <argument></argument>
         </service>
 
         <service id="mailgun.swift_transport.transport" class="%mailgun.swift_transport.transport.class%" public="true">
             <factory service="mailgun.swift_transport.transport.factory" method="createMailgunTransportService" />
             <argument></argument>
             <argument type="service" id="mailgun.library"></argument>
-            <argument>%mailgun.domain%</argument>
+            <argument></argument>
         </service>
     </services>
 </container>
