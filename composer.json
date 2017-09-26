@@ -1,5 +1,5 @@
 {
-    "name" : "touiliy/swiftmailer-mailgun-bundle",
+    "name" : "copromatic/swiftmailer-mailgun-bundle",
     "type" : "symfony-bundle",
     "description" : "Swiftmailer Mailgun bundle",
     "keywords" : ["E-Mail", "Swiftmailer", "mailgun"],
