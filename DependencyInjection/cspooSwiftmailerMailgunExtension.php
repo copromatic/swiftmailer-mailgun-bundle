@@ -36,7 +36,8 @@ class cspooSwiftmailerMailgunExtension extends Extension
                 $container->setDefinition('mailgun.library.'.$key,
                     new Definition('%mailgun.class%', [
                         $transport['key'],
-                        null
+                        null,
+                        'api.eu.mailgun.net'
                     ])
                 );
                 // Transport Swiftmailer
