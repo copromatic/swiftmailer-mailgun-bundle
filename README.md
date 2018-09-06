@@ -30,9 +30,17 @@ Configure your application with the credentials you find on the [domain overview
 ``` yaml
 // app/config/config.yml:
 cspoo_swiftmailer_mailgun:
-    key: "key-xxxxxxxxxx"
-    domain: "mydomain.com"
-    http_client: 'httplug.client' # Optional. Defaults to null and uses dicovery to find client. 
+    transports:
+        foo:
+            key: "key-xxxxxxxxxx"
+            domain: "mydomain.com"
+            endpoint: "api.mailgun.net"
+        bar:
+            key: "key-xxxxxxxxxx"
+            domain: "mydomain.com"
+            endpoint: "api.eu.mailgun.net"
+    http_client: "httplug.client" # Optional. Defaults to null and uses dicovery to find client. 
+    default_transport: "bar"
 
 # Swiftmailer Configuration
 swiftmailer:

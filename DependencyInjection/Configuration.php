@@ -72,6 +72,7 @@ class Configuration implements ConfigurationInterface
                         ->children()
                             ->scalarNode('key')->isRequired()->end()
                             ->scalarNode('domain')->isRequired()->end()
+                            ->scalarNode('endpoint')->isRequired()->end()
                         ->end()
                     ->end()
                 ->end()
@@ -90,6 +91,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('key')->isRequired()->end()
                 ->scalarNode('domain')->isRequired()->end()
+                ->scalarNode('endpoint')->isRequired()->end()
             ->end()
         ;
         return $node;
